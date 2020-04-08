@@ -2,6 +2,8 @@ package com.ipartek.controller;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
@@ -40,6 +42,48 @@ public class ProductoController extends HttpServlet {
 			requestDispatcher.forward(request, response);
 		}else if("listar".equals(opcion)) {
 			System.out.println("presiono listar");
+			ProductoDAO productoDAO=new ProductoDAO();
+			List<Producto>lista=new ArrayList<Producto>();
+			try {
+				lista=productoDAO.obtenerProductos();
+				for (Producto producto : lista) {
+					System.out.println(producto);
+				}
+				request.setAttribute("lista", lista);
+				RequestDispatcher requestDispatcher= request.getRequestDispatcher("views/listar.jsp");
+				requestDispatcher.forward(request, response);
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else if("meditar".equals(opcion)) {
+			int id=Integer.parseInt(request.getParameter("id"));
+			System.out.println("editar id " +id);
+			ProductoDAO productoDAO=new ProductoDAO();
+			Producto p=new Producto();
+			try {
+				p=productoDAO.obtenerProducto(id);
+				System.out.println("producto p es igual a "+p);
+				request.setAttribute("producto", p);
+				RequestDispatcher requestDispatcher= request.getRequestDispatcher("views/editar.jsp");
+				requestDispatcher.forward(request, response);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}else if(opcion.equals("eliminar")) {
+			ProductoDAO productoDAO=new ProductoDAO();
+			int id=Integer.parseInt(request.getParameter("id"));
+			try {
+				productoDAO.eliminar(id);
+				System.out.println("registro eliminado");
+				RequestDispatcher requestDispatcher= request.getRequestDispatcher("/index.jsp");
+				requestDispatcher.forward(request, response);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		//response.getWriter().append("Served at: ").append(request.getContextPath());
 		
@@ -52,17 +96,42 @@ public class ProductoController extends HttpServlet {
 		// TODO Auto-generated method stub
 //		doGet(request, response);
 		String opcion=request.getParameter("opcion");
-		ProductoDAO productoDAO=new ProductoDAO();
-		Producto producto=new Producto();
-		producto.setNombre(request.getParameter("nombre"));
-		producto.setIdUsuario(1);//TODO cambiar esta id por la del usuario conectado
 		
-		try {
-			productoDAO.guardar(producto);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if (opcion.equals("guardar") ) {
+			ProductoDAO productoDAO=new ProductoDAO();
+			Producto producto=new Producto();
+			producto.setNombre(request.getParameter("nombre"));
+			producto.setIdUsuario(1);//TODO cambiar esta id por la del usuario conectado
+			
+			try {
+				productoDAO.guardar(producto);
+				System.out.println("guardado correcto del producto "+producto);
+				RequestDispatcher requestDispatcher= request.getRequestDispatcher("/index.jsp");
+				requestDispatcher.forward(request, response);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+		}else if(opcion.equals("editar")) {
+			ProductoDAO productoDAO=new ProductoDAO();
+			Producto producto=new Producto();
+			producto.setNombre(request.getParameter("nombre"));
+			producto.setId(Integer.parseInt(request.getParameter("id")));
+			
+			try {
+				productoDAO.editar(producto);
+				System.out.println("editado correcto del producto "+producto);
+				RequestDispatcher requestDispatcher= request.getRequestDispatcher("/index.jsp");
+				requestDispatcher.forward(request, response);
+				
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 		}
+		
 	}
 
 }

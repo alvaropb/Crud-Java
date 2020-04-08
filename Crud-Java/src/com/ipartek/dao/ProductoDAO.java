@@ -106,6 +106,7 @@ public class ProductoDAO {
 		connection=obtenerConexion();
 		try {
 			sql="SELECT * FROM producto";
+			statement=connection.prepareStatement(sql);
 			resultSet=statement.executeQuery(sql);
 			while (resultSet.next()) {
 				Producto producto=new Producto();
